@@ -61,6 +61,7 @@ export default class Library {
             console.log('libro non disponibile')
         } else {
             user.borrowBook(book);
+            console.log('libro prestato con successo');
             const isPhysical = book instanceof PhysicalBook;
             if (isPhysical) {
                 book.isBorrowed = true;
@@ -70,6 +71,7 @@ export default class Library {
     
     returnBook(user, book){
         user.returnBook(book);
+        console.log('libro restituito con successo');
         const isPhysical = book instanceof PhysicalBook;
         if (isPhysical) {
             book.isBorrowed = false;

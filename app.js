@@ -1,33 +1,142 @@
 import { question } from 'readline-sync';
 import Library from './model/library.js';
-
-console.log(`Benvenuti nella nuova ed innovativa libreria Stigliani. V0.2\n\n`);
+import User from "./model/user.js";
+import { PhysicalBook, EBook } from "./model/book.js";
 
 const library = new Library(`Stigliani`)
-console.log(library);
 
-function addUser(params) {
-    
+let id = 0;
+
+console.log(`\nBenvenuti nella nuova ed innovativa libreria Stigliani.\n`);
+
+function addUser() {
+
+    const questionName = `Inserisci il tuo nome: `;
+    const name = question(questionName)
+    const user = new User(id, `${name}`);
+
+    id += 1;
+
+    library.addUser(user);
+    console.log(`L'utente ${name} e' stato aggiunto con successo!`);
 }
 
-function addBook(params) {
-    
+function removeUser() {
+    const questionID = `Inserisci l'ID dell'utente che desideri eliminare: `;
+    const userID = question(questionID);
+    const user = new User(userID, '');
+
+    library.removeUser(user);
+    console.log(`L'utente e' stato rimosso con successo!`);
 }
 
-function removeUser(params) {
-    
+function physicBookAdd(isbn, title, author) {
+    const questionShelfLocation = `Inserisci la sua posizione nello scaffale: `;
+    const shelfLocation = question(questionShelfLocation);
+    const physicalBook = new PhysicalBook(isbn, title, author, shelfLocation);
+    library.addBook(physicalBook);
 }
 
-function removeBook(params) {
-    
+function eBookAdd(isbn, title, author) {
+    const questionFileFormat = `Inserisci il formato dell'e-book: `;
+    const fileFormat = question(questionFileFormat);
+    const eBook = new EBook(isbn, title, author, fileFormat);
+    library.addBook(eBook);
 }
 
-function listUsers(params) {
-    
+function addBook() {
+    const questionISBN = `Inserisci il codice ISBN del libro: `;
+    const bookISBN = question(questionISBN);
+    const questionTitle = `Inserisci il titolo del libro: `;
+    const bookTitle = question(questionTitle);
+    const questionAuthor = `Inserisci l'autore del libro: `;
+    const bookAuthor = question(questionAuthor);
+
+    while (true) {
+        const questionCondition = `Il libro e' fisico o digitale? `;
+        const condition = question(questionCondition);
+        switch (condition) {
+            case `fisico`:
+                physicBookAdd(bookISBN, bookTitle, bookAuthor);
+                console.log(`Il libro fisico e' stato aggiunto con successo!`);
+                return;
+            case `digitale`:
+                eBookAdd(bookISBN, bookTitle, bookAuthor);
+                console.log(`L'e-book e' stato aggiunto con successo!`);
+                return;
+            default:
+                console.log(`Scelta non valida!`);
+        }
+    }
 }
 
-function listBooks(params) {
-    
+function removeBook() {
+    const questionISBN = `Inserisci l'ISBN del libro che desideri eliminare: `;
+    const bookISBN = question(questionISBN);
+    const bookToRemove = new PhysicalBook(bookISBN, '', '', '');
+
+    library.removeBook(bookToRemove);
+    console.log(`Il libro e' stato rimosso con successo!`);
+}
+
+function listUsers() {
+    library.listUsers();
+}
+
+function listBooks() {
+    library.listBooks();
+}
+
+function borrowBook() {
+    const questionUserID = `Inserisci l'ID dell'utente che desidera prendere in prestito un libro: `;
+    const userID = parseInt(question(questionUserID));
+
+    const userIndex = library.users.findIndex(user => user.id === userID);
+
+    if (userIndex !== -1) {
+
+        const user = library.users[userIndex];
+
+        const questionBookISBN = `Inserisci l'ISBN del libro che desidera prendere in prestito: `;
+        const bookISBN = question(questionBookISBN);
+
+        const bookIndex = library.books.findIndex(book => book.isbn === bookISBN);
+
+        if (bookIndex !== -1) {
+            const book = library.books[bookIndex];
+            library.borrowBook(user, book);
+        } else {
+            console.log(`Il libro non e' disponibile in catalogo!`);
+        }
+    } else {
+        console.log(`L'utente non e' presente in archivio!`);
+    }
+}
+
+function returnBook() {
+    const questionUserID = `Inserisci l'ID dell'utente che desidera ritornare dal prestito un libro: `;
+    const userID = parseInt(question(questionUserID));
+
+    const userIndex = library.users.findIndex(user => user.id === userID);
+
+    if (userIndex !== -1) {
+
+        const user = library.users[userIndex];
+
+        const questionBookISBN = `Inserisci l'ISBN del libro che desidera ritornare dal prestito: `;
+        const bookISBN = question(questionBookISBN);
+
+        const bookIndex = library.books.findIndex(book => book.isbn === bookISBN);
+
+        if (bookIndex !== -1) {
+            const book = library.books[bookIndex];
+            library.returnBook(user, book);
+        } else {
+            console.log(`Nessuna corrispondeza trovata!`);
+        }
+    } else {
+        console.log(`L'utente non e' presente in archivio!`);
+    }
 }
 
 while (true) {
@@ -45,50 +154,39 @@ while (true) {
                     \nScegli il numero della funzionalita': `;
 
 
-const answer = question(introString);
-console.log(`L'utente ha scelto la funzionalita' numero: ${answer}`);
+    const answer = question(introString);
 
-switch (answer) {
-    case `1`:
-        addUser()
-        break;
+    switch (answer) {
+        case `1`:
+            addUser()
+            break;
         case `2`:
-        removeUser()
-        break;
+            removeUser()
+            break;
         case `3`:
             addBook()
-        break;
+            break;
         case `4`:
-        removeBook()
-        break;
+            removeBook()
+            break;
         case `5`:
-        listUsers()
-        break;
+            listUsers()
+            break;
         case `6`:
-        listBooks()
-        break;
+            listBooks()
+            break;
         case `7`:
-        borrowBook()
-        break;
+            borrowBook()
+            break;
         case `8`:
-        ReturnBook()
-        break;
+            returnBook()
+            break;
         case `9`:
             process.exit(0);
-        break;
+            break;
 
-    default:
-        console.log(`Scelta non valida!`)
-        break;
+        default:
+            console.log(`Scelta non valida!`)
+            break;
+    }
 }
-}
-
-
-// if (answer == 1) {
-//     id += 1;
-//     const questionName = `Inserisci il tuo nome: `;
-//     const name = f1.question(questionName)
-//     console.log(`L'utente si chiama: ${name}`);
-//     const user = new User(`${userName}`, id);
-//     console.log(user);
-// };
