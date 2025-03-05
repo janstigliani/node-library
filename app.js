@@ -4,6 +4,7 @@ import Library from './model/library.js';
 console.log(`Benvenuti nella nuova ed innovativa libreria Stigliani. V0.2\n\n`);
 
 const library = new Library(`Stigliani`)
+console.log(library);
 
 function addUser(params) {
     
