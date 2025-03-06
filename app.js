@@ -1,6 +1,7 @@
 import { question } from 'readline-sync';
 import Library from './model/library.js';
 import User from "./model/user.js";
+import PremiumUser from "./model/premiumUser.js";
 import { PhysicalBook, EBook } from "./model/book.js";
 
 const library = new Library(`Stigliani`)
@@ -12,13 +13,25 @@ console.log(`\nBenvenuti nella nuova ed innovativa libreria Stigliani.\n`);
 function addUser() {
 
     const questionName = `Inserisci il tuo nome: `;
-    const name = question(questionName)
-    const user = new User(id, `${name}`);
+    const name = question(questionName);
+    if (name) {
+        const isPremium = question("e' un utente premium?(si)(no)")
+        if (isPremium === "si") {
+            const premiumUser = new PremiumUser(id, `${name}`);
+            library.addUser(premiumUser);
+        } else if (isPremium === "no") {
+            const user = new User(id, `${name}`);
+            library.addUser(user);
+        } else {
+            return "error";
+        }
 
-    id += 1;
+        id += 1;
 
-    library.addUser(user);
-    console.log(`L'utente ${name} e' stato aggiunto con successo!`);
+        console.log(`L'utente ${name} e' stato aggiunto con successo!`);
+    } else {
+        console.log(`Nome non valido`);
+    }
 }
 
 function removeUser() {
@@ -52,21 +65,25 @@ function addBook() {
     const questionAuthor = `Inserisci l'autore del libro: `;
     const bookAuthor = question(questionAuthor);
 
-    while (true) {
-        const questionCondition = `Il libro e' fisico o digitale? `;
-        const condition = question(questionCondition);
-        switch (condition) {
-            case `fisico`:
-                physicBookAdd(bookISBN, bookTitle, bookAuthor);
-                console.log(`Il libro fisico e' stato aggiunto con successo!`);
-                return;
-            case `digitale`:
-                eBookAdd(bookISBN, bookTitle, bookAuthor);
-                console.log(`L'e-book e' stato aggiunto con successo!`);
-                return;
-            default:
-                console.log(`Scelta non valida!`);
+    if (bookISBN && bookTitle && bookAuthor) {
+        while (true) {
+            const questionCondition = `Il libro e' fisico o digitale? `;
+            const condition = question(questionCondition);
+            switch (condition) {
+                case `fisico`:
+                    physicBookAdd(bookISBN, bookTitle, bookAuthor);
+                    console.log(`Il libro fisico e' stato aggiunto con successo!`);
+                    return;
+                case `digitale`:
+                    eBookAdd(bookISBN, bookTitle, bookAuthor);
+                    console.log(`L'e-book e' stato aggiunto con successo!`);
+                    return;
+                default:
+                    console.log(`Scelta non valida!`);
+            }
         }
+    } else {
+        console.log(`parametri non validi`);
     }
 }
 
@@ -87,7 +104,7 @@ function listBooks() {
     library.listBooks();
 }
 
-function borrowBook() {
+function borrowBookById() {
     const questionUserID = `Inserisci l'ID dell'utente che desidera prendere in prestito un libro: `;
     const userID = parseInt(question(questionUserID));
 
@@ -132,12 +149,28 @@ function returnBook() {
             const book = library.books[bookIndex];
             library.returnBook(user, book);
         } else {
-            console.log(`Nessuna corrispondeza trovata!`);
+            console.log(`Nessuna corrispondeza trovata nel catalogo!`);
         }
     } else {
         console.log(`L'utente non e' presente in archivio!`);
     }
 }
+
+////da finire
+
+// function extendBorrowLimit() {
+//     const userID = parseInt(question(questionUserID));
+
+//     const userIndex = library.users.findIndex(user => user.id === userID);
+
+//     if (userIndex !== -1) {
+
+//         const user = library.users[userIndex];
+//         if (user instance of PremiumUser) {
+            
+//         }
+    
+// }
 
 while (true) {
     const introString = `Ti presentiamo le nostre funzionalita':
@@ -149,7 +182,8 @@ while (true) {
                     \n6)visualizza lista libri
                     \n7)presta libro
                     \n8)restituisci libro
-                    \n9)esci
+                    \n9)estendi limite utente premium
+                    \n10)esci
                     \n
                     \nScegli il numero della funzionalita': `;
 
@@ -158,30 +192,32 @@ while (true) {
 
     switch (answer) {
         case `1`:
-            addUser()
+            addUser();
             break;
         case `2`:
-            removeUser()
+            removeUser();
             break;
         case `3`:
-            addBook()
+            addBook();
             break;
         case `4`:
-            removeBook()
+            removeBook();
             break;
         case `5`:
-            listUsers()
+            listUsers();
             break;
         case `6`:
-            listBooks()
+            listBooks();
             break;
         case `7`:
-            borrowBook()
+            borrowBookById();
             break;
         case `8`:
-            returnBook()
+            returnBook();
             break;
-        case `9`:
+        // case `9`:
+        //     extendBorrowLimit();
+        case `10`:
             process.exit(0);
             break;
 
